@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "feedsub": "^0.7.1",
+    "lowdb": "^1.0.0",
     "slackbots": "^1.2.0"
   }
 }
