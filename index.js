@@ -22,6 +22,8 @@ const db = low(adapter);
 // Create db
 db.defaults({feed: []}).write();
 
+console.log(process.env.rss_feed);
+
 bot.on('start', function () {
     bot.postMessageToChannel('general', 'please stay at home!');
 });
