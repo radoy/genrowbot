@@ -28,31 +28,49 @@ bot.on('start', function () {
 
 bot.on("message", msg => {
     if (msg.type === "message") {
-        if (msg.channel[0] === "D" && msg.bot_id === undefined) {
-            bot.postMessage(msg.user, "hi", {as_user: true});
 
-            let item = db.get('feed')
-                .filter({published: true})
-                .sortBy('views')
-                .take(5)
-                .value();
+        //Direct Message
+        if (msg.channel[0] === "D") {
 
-            for (let i of item) {
-                bot.postMessage(msg.user, i.title, {as_user: true});
+            if (msg.text == "rss") {
+                let item = db.get('feed')
+                    .filter(feed => feed.title !== 'No title')
+                    .orderBy(['pubdatetime'], ['desc'])
+                    .take(5)
+                    .value();
+
+                if (item.length < 1) {
+                    bot.postMessage(msg.user, 'there is no rss feed, please try again in a minute.', {as_user: true});
+                }
+
+                for (let i of item) {
+                    bot.postMessage(msg.user, i.title + ": " + i.pubdate + "\n" + i.link, {as_user: true});
+                }
+            } else {
+                bot.postMessage(msg.user, "Hello. I wish you are at your home right now. \n To see rss feed from topcoder please type: rss \n Thank you", {as_user: true});
             }
         }
     }
 });
 
 reader.on('item', (item) => {
-    console.log(item.title);
+    try {
+        const itemInDb = db.get('feed').find({link: item.link}).value();
+        if (!itemInDb) {
+            item.pubdatetime = new Date(item.pubdate).getTime();
 
-    const itemInDb = db.get('feed').find({link: item.link}).value();
-    if (!itemInDb) {
-        if (item.title !== 'No title') {
             db.get('feed').push(item).write();
         }
+
+    } catch (err) {
+        console.log(err);
     }
+});
+
+reader.on('error', (err) => {
+    // restart service if something wrong happen
+    console.log(err);
+    reader.start();
 });
 
 reader.start();
