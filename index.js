@@ -20,7 +20,7 @@ const adapter = new FileSync('db.json');
 const db = low(adapter);
 
 // Create db
-// db.defaults({feed: []}).write();
+db.defaults({feed: []}).write();
 
 bot.on('start', function () {
     bot.postMessageToChannel('general', 'please stay at home!');
